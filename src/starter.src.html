@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="claude:viewport-fit-sides" content="cover">
+<title>고객센터 문의 분석</title>
+<style>
+/* 토큰은 Folio(노션 스타일 디자인 시스템) 정본에서 가져옵니다. 직접 고치지 않습니다. */
+/*__FOLIO_TOKENS__*/
+
+/* ---- 페이지 바탕 ---- */
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--fl-bg);
+  color: var(--fl-text);
+  font-family: var(--fl-font-sans);
+  font-size: var(--fl-text-base);
+  line-height: var(--fl-leading-normal);
+  -webkit-font-smoothing: antialiased;
+  padding-block: var(--fl-space-10);
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.page { max-width: var(--fl-page-max-w-wide); margin: 0 auto; display: grid; gap: var(--fl-space-9); }
+
+/* ---- Folio components.css에서 그대로 가져온 규칙 ---- */
+.fl-card { background: var(--fl-surface); border: 1px solid var(--fl-border-subtle); border-radius: var(--fl-radius-md); padding: 16px; }
+.fl-btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 32px; padding: 0 12px; border-radius: var(--fl-radius-sm); border: 1px solid transparent; background: transparent; color: var(--fl-text); font-family: inherit; font-size: var(--fl-text-sm); font-weight: var(--fl-weight-medium); line-height: 1; cursor: pointer; user-select: none; white-space: nowrap; }
+.fl-btn--primary { background: var(--fl-accent); color: var(--fl-text-on-accent); border-color: var(--fl-accent); }
+.fl-btn--primary:hover:not(:disabled) { background: var(--fl-accent-600); border-color: var(--fl-accent-600); }
+.fl-btn--secondary { background: var(--fl-surface); border-color: var(--fl-border); color: var(--fl-text); }
+.fl-btn--secondary:hover:not(:disabled) { background: var(--fl-hover); }
+.fl-btn:disabled { opacity: .5; cursor: default; }
+.fl-input { display: block; width: 100%; height: 32px; padding: 0 10px; border-radius: var(--fl-radius-sm); border: 1px solid var(--fl-border); background: var(--fl-surface); color: var(--fl-text); font-family: inherit; font-size: var(--fl-text-sm); line-height: 1.4; }
+.fl-select { height: 32px; padding: 0 8px 0 10px; border-radius: var(--fl-radius-sm); border: 1px solid var(--fl-border); background: var(--fl-surface); font-family: inherit; font-size: var(--fl-text-sm); color: var(--fl-text); min-width: 120px; }
+.fl-table { width: 100%; border-collapse: collapse; font-size: var(--fl-text-sm); }
+.fl-table th, .fl-table td { text-align: left; padding: 7px 10px; border-bottom: 1px solid var(--fl-border-subtle); border-right: 1px solid var(--fl-border-subtle); vertical-align: middle; }
+.fl-table th:last-child, .fl-table td:last-child { border-right: none; }
+.fl-table th { font-weight: var(--fl-weight-regular); color: var(--fl-text-secondary); background: var(--fl-surface); font-size: var(--fl-text-xs); height: 32px; }
+.fl-table tr:hover td { background: var(--fl-hover); }
+.fl-tag { display: inline-flex; align-items: center; gap: 4px; padding: 0 8px; height: 22px; border-radius: var(--fl-radius-sm); background: var(--fl-tint-gray-bg); color: var(--fl-tint-gray); font-size: var(--fl-text-xs); font-weight: var(--fl-weight-medium); white-space: nowrap; }
+.fl-tag--green { background: var(--fl-tint-green-bg); color: var(--fl-tint-green); }
+.fl-tag--blue { background: var(--fl-tint-blue-bg); color: var(--fl-tint-blue); }
+.fl-tag--red { background: var(--fl-tint-red-bg); color: var(--fl-tint-red); }
+.fl-tag--yellow { background: var(--fl-tint-yellow-bg); color: var(--fl-tint-yellow); }
+.fl-tabs { display: flex; gap: 2px; border-bottom: 1px solid var(--fl-border-subtle); }
+.fl-tab { position: relative; padding: 8px 12px; font-size: var(--fl-text-sm); color: var(--fl-text-secondary); cursor: pointer; font-weight: var(--fl-weight-medium); border-radius: var(--fl-radius-sm) var(--fl-radius-sm) 0 0; user-select: none; background: none; border: 0; font-family: inherit; }
+.fl-tab:hover { background: var(--fl-hover); color: var(--fl-text); }
+.fl-tab[aria-selected="true"] { color: var(--fl-text); }
+.fl-tab[aria-selected="true"]::after { content: ""; position: absolute; left: 8px; right: 8px; bottom: -1px; height: 2px; background: var(--fl-text); border-radius: 2px 2px 0 0; }
+.fl-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 48px 24px; text-align: center; color: var(--fl-text-tertiary); }
+
+/* ---- 이 앱의 배치 ---- */
+.icon { font-size: 52px; line-height: 1; margin-bottom: var(--fl-space-4); }
+h1 { margin: 0; font-size: var(--fl-text-4xl); font-weight: var(--fl-weight-bold); line-height: var(--fl-leading-tight); letter-spacing: -0.025em; }
+h2 { margin: 0 0 var(--fl-space-5); font-size: var(--fl-text-2xl); font-weight: var(--fl-weight-semibold); line-height: var(--fl-leading-snug); }
+.props { display: grid; gap: var(--fl-space-2); margin-top: var(--fl-space-6); color: var(--fl-text-tertiary); font-size: var(--fl-text-sm); }
+.prop { display: flex; gap: var(--fl-space-6); }
+.prop b { width: 80px; flex: none; font-weight: var(--fl-weight-regular); color: var(--fl-text-quaternary); }
+.prop span { color: var(--fl-text-secondary); }
+.scroll { overflow-x: auto; }
+.empty-title { color: var(--fl-text); font-weight: var(--fl-weight-medium); margin-bottom: var(--fl-space-2); }
+@media (max-width: 600px) { h1 { font-size: var(--fl-text-3xl); } }
+</style>
+</head>
+<body>
+<main class="page">
+  <header>
+    <div class="icon" aria-hidden="true">📈</div>
+    <h1>고객센터 문의 분석</h1>
+    <div class="props">
+      <div class="prop"><b>데이터</b><span>일별 문의 접수 건수 엑셀 (날짜, 카테고리별 건수)</span></div>
+      <div class="prop"><b>상태</b><span id="status">엑셀 파일을 기다리는 중</span></div>
+    </div>
+  </header>
+
+  <!-- 기능은 단계마다 아래에 하나씩 더해 갑니다. 각 기능은 id가 있는 section으로 추가합니다. -->
+  <section class="fl-card" id="empty">
+    <div class="fl-empty">
+      <div class="empty-title">아직 올린 파일이 없습니다</div>
+      <div>엑셀 파일을 올리면 이 자리에 분석이 나타납니다.</div>
+    </div>
+  </section>
+</main>
+
+<script>
+(function () {
+  // 앱의 코드는 전부 이 함수 안에 둡니다. top, name, status 같은 브라우저 기본 변수와 이름이 겹치면 화면 전체가 비어 보입니다.
+  var $ = function (id) { return document.getElementById(id); };
+  var esc = function (s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); };
+  // 올린 파일은 이 배열에 쌓습니다. 데이터는 이 화면(브라우저) 안에서만 읽고 어디로도 보내지 않습니다.
+  var files = [];
+  void $; void esc; void files;
+})();
+</script>
+</body>
+</html>

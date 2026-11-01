@@ -28,6 +28,10 @@ dashboard.html의 DATA를 아래 내용으로 바꿔줘. 화면 구조와 디자
 dashboard.html을 아티팩트로 올려줘
 ```
 
+## 분석 앱 만들기 (starter.html)
+
+`starter.html`은 기능이 없는 빈 바탕입니다. 같은 노션 스타일 위에 요구사항을 한 단계씩 말해서 기능을 더해 갑니다. 엑셀 올리기, 파일 조회·삭제, 전일 대비 요약, 이상한 날 찾기, 카테고리 추세, 모델·생각 깊이를 고르는 Claude 질문 순서입니다. 연습용 엑셀은 `examples/`에 있고, 막히면 `examples/analysis-app-complete.html`과 비교합니다.
+
 ## 노션 스타일로 더 만들기
 
 새 화면을 덧붙일 때는 `CLAUDE.md`의 규칙을 Claude가 따릅니다. 색, 간격, 글자 크기, 모서리는 `css/tokens.css`의 `--fl-*` 토큰만 씁니다. 버튼·카드·표·태그·콜아웃 같은 부품은 `css/components.css`에 있습니다. 새 색을 직접 정하지 않으면 대시보드와 같은 노션 분위기가 이어집니다.
@@ -36,7 +40,9 @@ dashboard.html을 아티팩트로 올려줘
 
 | 파일 | 설명 |
 |---|---|
-| `dashboard.html` | 완성본. 이 파일 하나면 됩니다 |
+| `dashboard.html` | 숫자만 바꾸는 완성된 대시보드 |
+| `starter.html` | 분석 앱의 빈 바탕 |
+| `examples/` | 일별 문의 엑셀 3개, 분석 앱 완성본 |
 | `CLAUDE.md` | Claude가 이 저장소에서 지킬 규칙 |
 | `css/tokens.css` | Folio 토큰(정본 복사본). 고치지 않습니다 |
 | `css/components.css` | Folio 컴포넌트(정본 복사본). 참고용입니다 |

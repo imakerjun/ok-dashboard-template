@@ -1,0 +1,498 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="claude:viewport-fit-sides" content="cover">
+<title>고객센터 문의 분석</title>
+<style>
+/* 토큰은 Folio(노션 스타일 디자인 시스템) 정본에서 가져옵니다. 직접 고치지 않습니다. */
+:root {
+
+  --fl-font-sans:
+    "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont,
+    "Apple SD Gothic Neo", "Segoe UI", Roboto, "Helvetica Neue", Arial,
+    "Noto Sans KR", sans-serif;
+  --fl-font-mono:
+    ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Monaco, Consolas,
+    "Liberation Mono", monospace;
+  --fl-font-serif: "Source Serif Pro", "Noto Serif KR", Georgia, serif;
+
+
+  /* --- Surfaces (white-forward, layered with subtle warm tint) ---------- */
+  --fl-bg: #ffffff; /* page background — Notion-style white */
+  --fl-surface: #ffffff; /* cards, popovers, modals */
+  --fl-surface-2: #f7f6f3; /* sidebar, secondary surfaces */
+  --fl-surface-3: #f1f0ec; /* sunken / inset / code */
+  --fl-overlay: rgba(15, 15, 15, 0.32);
+
+  /* --- Interactive states (apply on top of any surface) ----------------- */
+  --fl-hover: rgba(55, 53, 47, 0.06);
+  --fl-hover-strong: rgba(55, 53, 47, 0.09);
+  --fl-active: rgba(55, 53, 47, 0.12);
+  --fl-selected: rgba(35, 131, 226, 0.12);
+
+  /* --- Text -------------------------------------------------------------- */
+  --fl-text: #37352f;
+  --fl-text-secondary: #525049; /* darker — legible for body context */
+  --fl-text-tertiary: #787774; /* Notion-matched, for meta only */
+  --fl-text-quaternary: #9b9a97; /* labels, hints */
+  --fl-text-placeholder: #b9b8b3;
+  --fl-text-disabled: #b9b8b3;
+  --fl-text-on-accent: #ffffff;
+  --fl-text-link: #2d6fc5;
+
+  /* --- Borders ----------------------------------------------------------- */
+  --fl-border-subtle: rgba(15, 14, 12, 0.06);
+  --fl-border: rgba(15, 14, 12, 0.10);
+  --fl-border-strong: rgba(15, 14, 12, 0.18);
+  --fl-border-focus: #3d6ff2;
+
+  /* --- Accent (slate-blue) ---------------------------------------------- */
+  --fl-accent-50: #ecf2ff;
+  --fl-accent-100: #d9e3ff;
+  --fl-accent-200: #b3c5ff;
+  --fl-accent-400: #6a8cff;
+  --fl-accent: #3d6ff2; /* primary brand */
+  --fl-accent-600: #2d5bd9;
+  --fl-accent-700: #1f47b3;
+
+  /* --- Semantic ---------------------------------------------------------- */
+  --fl-success: #2f9e6b;
+  --fl-success-bg: #e7f5ee;
+  --fl-warning: #cb912f;
+  --fl-warning-bg: #faf3dd;
+  --fl-danger: #d8514a;
+  --fl-danger-bg: #fbe9e7;
+  --fl-info: #3d6ff2;
+  --fl-info-bg: #ecf2ff;
+
+  /* --- Block tints (text colors) — Notion-authentic text hues -----------*/
+  --fl-tint-gray: #787774;
+  --fl-tint-brown: #976d57;
+  --fl-tint-orange: #cc782f;
+  --fl-tint-yellow: #cb912f;
+  --fl-tint-green: #548164;
+  --fl-tint-blue: #487ca5;
+  --fl-tint-purple: #8a67ab;
+  --fl-tint-pink: #b35488;
+  --fl-tint-red: #c4554d;
+
+  /* --- Chart palette — brighter, cleaner data-viz hues (Notion-flavored).
+     Signature Notion blue #2383E2 leads; the rest share high chroma so series
+     read as vivid and distinct rather than muddy. -----------------------*/
+  --fl-chart-gray: #9b9a97;
+  --fl-chart-brown: #a8724e;
+  --fl-chart-orange: #f1942c;
+  --fl-chart-yellow: #e5b228;
+  --fl-chart-green: #1fa774;
+  --fl-chart-blue: #2383e2;
+  --fl-chart-purple: #9d68d3;
+  --fl-chart-pink: #e255a1;
+  --fl-chart-red: #e5484d;
+
+  /* --- Inverse surface — tooltips, toasts, snackbars -------------------- */
+  --fl-inverse-surface: #2a2925;
+  --fl-inverse-text: #f6f4f1;
+
+  /* --- Block tint backgrounds — Notion-authentic subtle fills ----------- */
+  --fl-tint-gray-bg: #f1f1ef;
+  --fl-tint-brown-bg: #f3eeee;
+  --fl-tint-orange-bg: #f8ecdf;
+  --fl-tint-yellow-bg: #faf3dd;
+  --fl-tint-green-bg: #eef3ed;
+  --fl-tint-blue-bg: #e9f3f7;
+  --fl-tint-purple-bg: #f6f3f8;
+  --fl-tint-pink-bg: #f9f2f5;
+  --fl-tint-red-bg: #faecec;
+
+  /* --- Shadows ----------------------------------------------------------- */
+  --fl-shadow-xs: 0 1px 2px rgba(15, 14, 12, 0.04);
+  --fl-shadow-sm: 0 1px 3px rgba(15, 14, 12, 0.06), 0 1px 2px rgba(15, 14, 12, 0.04);
+  --fl-shadow-md:
+    0 2px 4px rgba(15, 14, 12, 0.04),
+    0 4px 12px rgba(15, 14, 12, 0.08);
+  --fl-shadow-lg:
+    0 4px 8px rgba(15, 14, 12, 0.04),
+    0 12px 32px rgba(15, 14, 12, 0.12);
+  --fl-shadow-xl:
+    0 8px 16px rgba(15, 14, 12, 0.06),
+    0 24px 48px rgba(15, 14, 12, 0.16);
+
+  color-scheme: light;
+
+
+  /* --- Type scale (px) — Korean-readable. Block body uses --lg(17px). ----*/
+  --fl-text-2xs: 11px;
+  --fl-text-xs: 12px;
+  --fl-text-sm: 13px;
+  --fl-text-base: 14px;
+  --fl-text-md: 15px;
+  --fl-text-lg: 17px; /* page body / block content — was 16, +1 for Korean */
+  --fl-text-xl: 19px;
+  --fl-text-2xl: 24px;
+  --fl-text-3xl: 30px;
+  --fl-text-4xl: 38px;
+  --fl-text-5xl: 46px;
+
+  /* --- Line heights — tuned for Korean -------------------------------- */
+  --fl-leading-tight: 1.25;
+  --fl-leading-snug: 1.4;
+  --fl-leading-normal: 1.6; /* was 1.55 — slightly more air for Hangul */
+  --fl-leading-relaxed: 1.75;
+
+  /* --- Font weights ------------------------------------------------------ */
+  --fl-weight-regular: 400;
+  --fl-weight-medium: 500;
+  --fl-weight-semibold: 600;
+  --fl-weight-bold: 700;
+
+  /* --- Spacing (4px base) ----------------------------------------------- */
+  --fl-space-0: 0;
+  --fl-space-1: 2px;
+  --fl-space-2: 4px;
+  --fl-space-3: 6px;
+  --fl-space-4: 8px;
+  --fl-space-5: 12px;
+  --fl-space-6: 16px;
+  --fl-space-7: 20px;
+  --fl-space-8: 24px;
+  --fl-space-9: 32px;
+  --fl-space-10: 40px;
+  --fl-space-11: 48px;
+  --fl-space-12: 64px;
+  --fl-space-13: 80px;
+  --fl-space-14: 96px;
+
+  /* --- Radius ------------------------------------------------------------ */
+  --fl-radius-xs: 3px;
+  --fl-radius-sm: 4px;
+  --fl-radius: 6px;
+  --fl-radius-md: 8px;
+  --fl-radius-lg: 12px;
+  --fl-radius-xl: 16px;
+  --fl-radius-2xl: 20px;
+  --fl-radius-full: 9999px;
+
+  /* --- Motion ------------------------------------------------------------ */
+  --fl-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --fl-ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --fl-ease-inout: cubic-bezier(0.65, 0, 0.35, 1);
+  --fl-ease-spring: cubic-bezier(0.17, 0.86, 0.32, 1.28);
+
+  --fl-duration-fast: 120ms;
+  --fl-duration-normal: 180ms;
+  --fl-duration-slow: 280ms;
+
+  /* --- Layout ------------------------------------------------------------ */
+  --fl-sidebar-w: 248px;
+  --fl-topbar-h: 44px;
+  --fl-page-max-w: 720px;
+  --fl-page-max-w-wide: 960px;
+  --fl-block-indent: 24px;
+  --fl-block-handle-w: 24px;
+
+  /* --- Z-index scale (v0.5) — predictable layering --------------------- */
+  --fl-z-base: 1;
+  --fl-z-sticky: 100;          /* sticky table headers, toolbars */
+  --fl-z-dropdown: 200;        /* select, menu, combobox */
+  --fl-z-popover: 300;         /* tooltips, hover cards */
+  --fl-z-overlay: 400;         /* modal scrim, drawer scrim */
+  --fl-z-modal: 500;           /* dialog content */
+  --fl-z-toast: 600;           /* toast / notification */
+  --fl-z-command: 700;         /* ⌘K, slash menu */
+  --fl-z-coachmark: 800;       /* onboarding spotlights */
+
+  /* --- Focus ring (v0.5) — single source of truth for a11y outlines ---- */
+  --fl-focus-ring-w: 2px;
+  --fl-focus-ring-offset: 2px;
+  --fl-focus-ring-color: var(--fl-accent);
+  --fl-focus-ring: 0 0 0 var(--fl-focus-ring-w) var(--fl-bg),
+                   0 0 0 calc(var(--fl-focus-ring-w) + var(--fl-focus-ring-offset)) var(--fl-focus-ring-color);
+
+  /* --- Density (v0.5) — toggle data-density on a root container -------- */
+  --fl-density-row-h: 32px;     /* default = comfortable */
+  --fl-density-row-pad-y: 6px;
+  --fl-density-block-gap: 4px;
+  --fl-density-section-gap: 16px;
+
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+  --fl-bg: #1a1918;
+  --fl-surface: #232220;
+  --fl-surface-2: #1f1e1c;
+  --fl-surface-3: #2b2a27;
+  --fl-overlay: rgba(0, 0, 0, 0.6);
+
+  --fl-hover: rgba(255, 253, 248, 0.05);
+  --fl-hover-strong: rgba(255, 253, 248, 0.09);
+  --fl-active: rgba(255, 253, 248, 0.13);
+  --fl-selected: rgba(106, 140, 255, 0.18);
+
+  --fl-text: #e8e6e1;
+  --fl-text-secondary: #c0bdb5; /* darker variant — readable for body context */
+  --fl-text-tertiary: #8e8a82;
+  --fl-text-quaternary: #6f6b62;
+  --fl-text-placeholder: #5a564f;
+  --fl-text-disabled: #5a564f;
+  /* dark theme accent is a LIGHT blue (#6a8cff); white text on it fails AA
+     (3.08:1, dropping to 1.7:1 on hover/active). Dark navy text passes
+     comfortably across all states (5.2 → 9.4:1). */
+  --fl-text-on-accent: #15203f;
+  --fl-text-link: #8aa9ff;
+
+  --fl-border-subtle: rgba(255, 253, 248, 0.06);
+  --fl-border: rgba(255, 253, 248, 0.10);
+  --fl-border-strong: rgba(255, 253, 248, 0.18);
+  --fl-border-focus: #6a8cff;
+
+  --fl-accent-50: #1a2547;
+  --fl-accent-100: #1f3061;
+  --fl-accent-200: #2a4a9e;
+  --fl-accent-400: #6a8cff;
+  --fl-accent: #6a8cff;
+  --fl-accent-600: #8aa9ff;
+  --fl-accent-700: #b3c5ff;
+
+  --fl-success: #5fc18e;
+  --fl-success-bg: #1c3528;
+  --fl-warning: #e3b341;
+  --fl-warning-bg: #372e20;
+  --fl-danger: #e87b75;
+  --fl-danger-bg: #3a201d;
+  --fl-info: #8aa9ff;
+  --fl-info-bg: #1a2547;
+
+  --fl-tint-gray: #9b9b9b;
+  --fl-tint-brown: #a27763;
+  --fl-tint-orange: #cb7b37;
+  --fl-tint-yellow: #d4a23c;
+  --fl-tint-green: #4f9768;
+  --fl-tint-blue: #447acb;
+  --fl-tint-purple: #865dbb;
+  --fl-tint-pink: #ba4a78;
+  --fl-tint-red: #be524b;
+
+  /* Chart palette — brighter data-viz hues for dark mode (lifted for contrast) */
+  --fl-chart-gray: #9e9e97;
+  --fl-chart-brown: #bc8e6e;
+  --fl-chart-orange: #f4a03c;
+  --fl-chart-yellow: #edc04a;
+  --fl-chart-green: #34b98a;
+  --fl-chart-blue: #4d9de8;
+  --fl-chart-purple: #b084e9;
+  --fl-chart-pink: #eb6fb1;
+  --fl-chart-red: #ec5f63;
+
+  --fl-inverse-surface: #ffffff;
+  --fl-inverse-text: #2a2925;
+
+  --fl-tint-gray-bg: rgba(168, 165, 159, 0.14);
+  --fl-tint-brown-bg: rgba(217, 163, 122, 0.14);
+  --fl-tint-orange-bg: rgba(232, 168, 107, 0.14);
+  --fl-tint-yellow-bg: rgba(232, 197, 99, 0.14);
+  --fl-tint-green-bg: rgba(127, 207, 163, 0.14);
+  --fl-tint-blue-bg: rgba(138, 169, 255, 0.16);
+  --fl-tint-purple-bg: rgba(179, 155, 245, 0.16);
+  --fl-tint-pink-bg: rgba(232, 143, 189, 0.14);
+  --fl-tint-red-bg: rgba(232, 138, 133, 0.14);
+
+  --fl-shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --fl-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4), 0 1px 2px rgba(0, 0, 0, 0.3);
+  --fl-shadow-md:
+    0 2px 4px rgba(0, 0, 0, 0.4),
+    0 4px 12px rgba(0, 0, 0, 0.5);
+  --fl-shadow-lg:
+    0 4px 8px rgba(0, 0, 0, 0.4),
+    0 12px 32px rgba(0, 0, 0, 0.6);
+  --fl-shadow-xl:
+    0 8px 16px rgba(0, 0, 0, 0.5),
+    0 24px 48px rgba(0, 0, 0, 0.7);
+
+  color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --fl-bg: #1a1918;
+  --fl-surface: #232220;
+  --fl-surface-2: #1f1e1c;
+  --fl-surface-3: #2b2a27;
+  --fl-overlay: rgba(0, 0, 0, 0.6);
+
+  --fl-hover: rgba(255, 253, 248, 0.05);
+  --fl-hover-strong: rgba(255, 253, 248, 0.09);
+  --fl-active: rgba(255, 253, 248, 0.13);
+  --fl-selected: rgba(106, 140, 255, 0.18);
+
+  --fl-text: #e8e6e1;
+  --fl-text-secondary: #c0bdb5; /* darker variant — readable for body context */
+  --fl-text-tertiary: #8e8a82;
+  --fl-text-quaternary: #6f6b62;
+  --fl-text-placeholder: #5a564f;
+  --fl-text-disabled: #5a564f;
+  /* dark theme accent is a LIGHT blue (#6a8cff); white text on it fails AA
+     (3.08:1, dropping to 1.7:1 on hover/active). Dark navy text passes
+     comfortably across all states (5.2 → 9.4:1). */
+  --fl-text-on-accent: #15203f;
+  --fl-text-link: #8aa9ff;
+
+  --fl-border-subtle: rgba(255, 253, 248, 0.06);
+  --fl-border: rgba(255, 253, 248, 0.10);
+  --fl-border-strong: rgba(255, 253, 248, 0.18);
+  --fl-border-focus: #6a8cff;
+
+  --fl-accent-50: #1a2547;
+  --fl-accent-100: #1f3061;
+  --fl-accent-200: #2a4a9e;
+  --fl-accent-400: #6a8cff;
+  --fl-accent: #6a8cff;
+  --fl-accent-600: #8aa9ff;
+  --fl-accent-700: #b3c5ff;
+
+  --fl-success: #5fc18e;
+  --fl-success-bg: #1c3528;
+  --fl-warning: #e3b341;
+  --fl-warning-bg: #372e20;
+  --fl-danger: #e87b75;
+  --fl-danger-bg: #3a201d;
+  --fl-info: #8aa9ff;
+  --fl-info-bg: #1a2547;
+
+  --fl-tint-gray: #9b9b9b;
+  --fl-tint-brown: #a27763;
+  --fl-tint-orange: #cb7b37;
+  --fl-tint-yellow: #d4a23c;
+  --fl-tint-green: #4f9768;
+  --fl-tint-blue: #447acb;
+  --fl-tint-purple: #865dbb;
+  --fl-tint-pink: #ba4a78;
+  --fl-tint-red: #be524b;
+
+  /* Chart palette — brighter data-viz hues for dark mode (lifted for contrast) */
+  --fl-chart-gray: #9e9e97;
+  --fl-chart-brown: #bc8e6e;
+  --fl-chart-orange: #f4a03c;
+  --fl-chart-yellow: #edc04a;
+  --fl-chart-green: #34b98a;
+  --fl-chart-blue: #4d9de8;
+  --fl-chart-purple: #b084e9;
+  --fl-chart-pink: #eb6fb1;
+  --fl-chart-red: #ec5f63;
+
+  --fl-inverse-surface: #ffffff;
+  --fl-inverse-text: #2a2925;
+
+  --fl-tint-gray-bg: rgba(168, 165, 159, 0.14);
+  --fl-tint-brown-bg: rgba(217, 163, 122, 0.14);
+  --fl-tint-orange-bg: rgba(232, 168, 107, 0.14);
+  --fl-tint-yellow-bg: rgba(232, 197, 99, 0.14);
+  --fl-tint-green-bg: rgba(127, 207, 163, 0.14);
+  --fl-tint-blue-bg: rgba(138, 169, 255, 0.16);
+  --fl-tint-purple-bg: rgba(179, 155, 245, 0.16);
+  --fl-tint-pink-bg: rgba(232, 143, 189, 0.14);
+  --fl-tint-red-bg: rgba(232, 138, 133, 0.14);
+
+  --fl-shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --fl-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4), 0 1px 2px rgba(0, 0, 0, 0.3);
+  --fl-shadow-md:
+    0 2px 4px rgba(0, 0, 0, 0.4),
+    0 4px 12px rgba(0, 0, 0, 0.5);
+  --fl-shadow-lg:
+    0 4px 8px rgba(0, 0, 0, 0.4),
+    0 12px 32px rgba(0, 0, 0, 0.6);
+  --fl-shadow-xl:
+    0 8px 16px rgba(0, 0, 0, 0.5),
+    0 24px 48px rgba(0, 0, 0, 0.7);
+
+  color-scheme: dark;
+}
+
+/* ---- 페이지 바탕 ---- */
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--fl-bg);
+  color: var(--fl-text);
+  font-family: var(--fl-font-sans);
+  font-size: var(--fl-text-base);
+  line-height: var(--fl-leading-normal);
+  -webkit-font-smoothing: antialiased;
+  padding-block: var(--fl-space-10);
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.page { max-width: var(--fl-page-max-w-wide); margin: 0 auto; display: grid; gap: var(--fl-space-9); }
+
+/* ---- Folio components.css에서 그대로 가져온 규칙 ---- */
+.fl-card { background: var(--fl-surface); border: 1px solid var(--fl-border-subtle); border-radius: var(--fl-radius-md); padding: 16px; }
+.fl-btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 32px; padding: 0 12px; border-radius: var(--fl-radius-sm); border: 1px solid transparent; background: transparent; color: var(--fl-text); font-family: inherit; font-size: var(--fl-text-sm); font-weight: var(--fl-weight-medium); line-height: 1; cursor: pointer; user-select: none; white-space: nowrap; }
+.fl-btn--primary { background: var(--fl-accent); color: var(--fl-text-on-accent); border-color: var(--fl-accent); }
+.fl-btn--primary:hover:not(:disabled) { background: var(--fl-accent-600); border-color: var(--fl-accent-600); }
+.fl-btn--secondary { background: var(--fl-surface); border-color: var(--fl-border); color: var(--fl-text); }
+.fl-btn--secondary:hover:not(:disabled) { background: var(--fl-hover); }
+.fl-btn:disabled { opacity: .5; cursor: default; }
+.fl-input { display: block; width: 100%; height: 32px; padding: 0 10px; border-radius: var(--fl-radius-sm); border: 1px solid var(--fl-border); background: var(--fl-surface); color: var(--fl-text); font-family: inherit; font-size: var(--fl-text-sm); line-height: 1.4; }
+.fl-select { height: 32px; padding: 0 8px 0 10px; border-radius: var(--fl-radius-sm); border: 1px solid var(--fl-border); background: var(--fl-surface); font-family: inherit; font-size: var(--fl-text-sm); color: var(--fl-text); min-width: 120px; }
+.fl-table { width: 100%; border-collapse: collapse; font-size: var(--fl-text-sm); }
+.fl-table th, .fl-table td { text-align: left; padding: 7px 10px; border-bottom: 1px solid var(--fl-border-subtle); border-right: 1px solid var(--fl-border-subtle); vertical-align: middle; }
+.fl-table th:last-child, .fl-table td:last-child { border-right: none; }
+.fl-table th { font-weight: var(--fl-weight-regular); color: var(--fl-text-secondary); background: var(--fl-surface); font-size: var(--fl-text-xs); height: 32px; }
+.fl-table tr:hover td { background: var(--fl-hover); }
+.fl-tag { display: inline-flex; align-items: center; gap: 4px; padding: 0 8px; height: 22px; border-radius: var(--fl-radius-sm); background: var(--fl-tint-gray-bg); color: var(--fl-tint-gray); font-size: var(--fl-text-xs); font-weight: var(--fl-weight-medium); white-space: nowrap; }
+.fl-tag--green { background: var(--fl-tint-green-bg); color: var(--fl-tint-green); }
+.fl-tag--blue { background: var(--fl-tint-blue-bg); color: var(--fl-tint-blue); }
+.fl-tag--red { background: var(--fl-tint-red-bg); color: var(--fl-tint-red); }
+.fl-tag--yellow { background: var(--fl-tint-yellow-bg); color: var(--fl-tint-yellow); }
+.fl-tabs { display: flex; gap: 2px; border-bottom: 1px solid var(--fl-border-subtle); }
+.fl-tab { position: relative; padding: 8px 12px; font-size: var(--fl-text-sm); color: var(--fl-text-secondary); cursor: pointer; font-weight: var(--fl-weight-medium); border-radius: var(--fl-radius-sm) var(--fl-radius-sm) 0 0; user-select: none; background: none; border: 0; font-family: inherit; }
+.fl-tab:hover { background: var(--fl-hover); color: var(--fl-text); }
+.fl-tab[aria-selected="true"] { color: var(--fl-text); }
+.fl-tab[aria-selected="true"]::after { content: ""; position: absolute; left: 8px; right: 8px; bottom: -1px; height: 2px; background: var(--fl-text); border-radius: 2px 2px 0 0; }
+.fl-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 48px 24px; text-align: center; color: var(--fl-text-tertiary); }
+
+/* ---- 이 앱의 배치 ---- */
+.icon { font-size: 52px; line-height: 1; margin-bottom: var(--fl-space-4); }
+h1 { margin: 0; font-size: var(--fl-text-4xl); font-weight: var(--fl-weight-bold); line-height: var(--fl-leading-tight); letter-spacing: -0.025em; }
+h2 { margin: 0 0 var(--fl-space-5); font-size: var(--fl-text-2xl); font-weight: var(--fl-weight-semibold); line-height: var(--fl-leading-snug); }
+.props { display: grid; gap: var(--fl-space-2); margin-top: var(--fl-space-6); color: var(--fl-text-tertiary); font-size: var(--fl-text-sm); }
+.prop { display: flex; gap: var(--fl-space-6); }
+.prop b { width: 80px; flex: none; font-weight: var(--fl-weight-regular); color: var(--fl-text-quaternary); }
+.prop span { color: var(--fl-text-secondary); }
+.scroll { overflow-x: auto; }
+.empty-title { color: var(--fl-text); font-weight: var(--fl-weight-medium); margin-bottom: var(--fl-space-2); }
+@media (max-width: 600px) { h1 { font-size: var(--fl-text-3xl); } }
+</style>
+</head>
+<body>
+<main class="page">
+  <header>
+    <div class="icon" aria-hidden="true">📈</div>
+    <h1>고객센터 문의 분석</h1>
+    <div class="props">
+      <div class="prop"><b>데이터</b><span>일별 문의 접수 건수 엑셀 (날짜, 카테고리별 건수)</span></div>
+      <div class="prop"><b>상태</b><span id="status">엑셀 파일을 기다리는 중</span></div>
+    </div>
+  </header>
+
+  <!-- 기능은 단계마다 아래에 하나씩 더해 갑니다. 각 기능은 id가 있는 section으로 추가합니다. -->
+  <section class="fl-card" id="empty">
+    <div class="fl-empty">
+      <div class="empty-title">아직 올린 파일이 없습니다</div>
+      <div>엑셀 파일을 올리면 이 자리에 분석이 나타납니다.</div>
+    </div>
+  </section>
+</main>
+
+<script>
+(function () {
+  // 앱의 코드는 전부 이 함수 안에 둡니다. top, name, status 같은 브라우저 기본 변수와 이름이 겹치면 화면 전체가 비어 보입니다.
+  var $ = function (id) { return document.getElementById(id); };
+  var esc = function (s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); };
+  // 올린 파일은 이 배열에 쌓습니다. 데이터는 이 화면(브라우저) 안에서만 읽고 어디로도 보내지 않습니다.
+  var files = [];
+  void $; void esc; void files;
+})();
+</script>
+</body>
+</html>
